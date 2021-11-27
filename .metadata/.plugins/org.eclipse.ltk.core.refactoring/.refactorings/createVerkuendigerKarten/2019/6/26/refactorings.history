@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;row&apos; in &apos;de.beckers.berichte.createVerkuendigerKarten.FuegeJahrHinzu.copyValsUp(...)&apos; to &apos;rowNum&apos;&#x0D;&#x0A;- Original project: &apos;createVerkuendigerKarten&apos;&#x0D;&#x0A;- Original element: &apos;de.beckers.berichte.createVerkuendigerKarten.FuegeJahrHinzu.copyValsUp(Sheet, int, int, int, int, int).row&apos;&#x0D;&#x0A;- Renamed element: &apos;row&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;row&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src\/main\/java&lt;de.beckers.berichte.createVerkuendigerKarten{FuegeJahrHinzu.java[FuegeJahrHinzu~copyValsUp~QSheet;~I~I~I~I~I@row!4961!4978!4965!4967!I!0!false" name="rowNum" references="true" stamp="1561401141882" version="1.0"/>
+</session>

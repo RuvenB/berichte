@@ -1,0 +1,37 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ErstelleKarten<createVerkuendigerKarten>",
+            "request": "launch",
+            "mainClass": "de.beckers.berichte.createVerkuendigerKarten.ErstelleKarten",
+            "projectName": "createVerkuendigerKarten"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-FuegeJahrHinzu<createVerkuendigerKarten>",
+            "request": "launch",
+            "mainClass": "de.beckers.berichte.createVerkuendigerKarten.FuegeJahrHinzu",
+            "projectName": "createVerkuendigerKarten"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-UbernehmeJahr<createVerkuendigerKarten>",
+            "request": "launch",
+            "mainClass": "de.beckers.berichte.createVerkuendigerKarten.UbernehmeJahr",
+            "args": "C:/Users/Ruven/Documents/Sekretär/Berichte/Berichte_2021.xlsx C:/Users/Ruven/Documents/Sekretär/Berichte/verk.xlsx",
+            "projectName": "createVerkuendigerKarten",
+            "vmArgs": "-Xmx2524m"
+        }
+    ]
+}

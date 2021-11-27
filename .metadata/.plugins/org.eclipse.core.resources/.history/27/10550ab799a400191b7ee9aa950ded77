@@ -1,0 +1,243 @@
+package de.beckers.berichte.createVerkuendigerKarten;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import de.beckers.file.NextFile;
+
+/**
+ * Fuegt in die Datei mit den Verkündigerkarten ein Jahr hinzu und
+ * speichert als neue Datei ab,
+ * 
+ * @author Ruven
+ *
+ */
+public class FuegeJahrHinzu {	
+	public static void main(String[] args) throws InvalidFormatException, IOException {
+		if(args.length != 2) {
+			System.err.println("Erwartet drei Parameter");
+			System.err.println("- Eingabedatei");
+			System.err.println("- Hinzuzufügendes Jahr");
+			return;
+		}
+		File inFile = new File(args[0]);
+		inFile = NextFile.findNewest(inFile);
+		if(!inFile.exists()) {
+			System.err.println("Die Eingabedatei existiert nicht");
+			return;
+		}
+		final XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream(inFile));
+		final int numberOfSheets = wb.getNumberOfSheets();
+		Sheet sheet;
+		final String jahr = args[1];
+		final CellStyle cellStyle = wb.createCellStyle();
+		cellStyle.setVerticalAlignment(VerticalAlignment.TOP);
+		cellStyle.setBorderBottom(BorderStyle.THIN);
+		cellStyle.setBorderLeft(BorderStyle.THIN);
+		cellStyle.setBorderRight(BorderStyle.THIN);
+		cellStyle.setBorderTop(BorderStyle.THIN);
+		for(int i = 0; i< numberOfSheets; i++) {
+			sheet = wb.getSheetAt(i);
+			bearbeiteSheet(sheet, jahr, cellStyle);
+		}
+		final FormulaEvaluator evaluator = new XSSFFormulaEvaluator(wb);
+		evaluator.evaluateAll();
+		final File neuFile = NextFile.nextFile(inFile);
+		final FileOutputStream outStream = new FileOutputStream(neuFile);
+		wb.write(outStream);
+		outStream.close();
+		wb.close();
+	}
+	private static void bearbeiteSheet(final Sheet sheet, final String jahr, final CellStyle borderedCellStyle) {
+		final int numOfRows = sheet.getLastRowNum();
+		final String sheetName = sheet.getSheetName();
+		
+		if(sheetName.startsWith("Besucher ")) {
+			bearbeiteBesucherSheet(sheet, numOfRows, jahr, borderedCellStyle);
+		}else if(sheetName.equals("Verkündiger") || sheetName.endsWith("ioniere")) {
+			bearbeiteVerkSumSheet(sheet, numOfRows, jahr, borderedCellStyle);
+		}else {
+			
+		}
+	}
+	private static void bearbeiteVerkSumSheet(final Sheet sheet, final int numRows, final String jahr, final CellStyle borderedCellStyle) {
+		final int startRow = numRows + 4;
+		Row row = sheet.createRow(startRow);
+		
+		addBorderedCell("Dienstjahr", row, borderedCellStyle, 0);
+		addBorderedCell("Anzahl", row, borderedCellStyle, 1);
+		addBorderedCell("Abgabe", row, borderedCellStyle, 2);
+		addBorderedCell("\u2300", row, borderedCellStyle, 3);
+		addBorderedCell("Videovorführungen", row, borderedCellStyle, 4);
+		addBorderedCell("\u2300", row, borderedCellStyle, 5);
+		addBorderedCell("Stunden", row, borderedCellStyle, 6);
+		addBorderedCell("\u2300", row, borderedCellStyle, 7);
+		addBorderedCell("Rückbesuche", row, borderedCellStyle, 8);
+		addBorderedCell("\u2300", row, borderedCellStyle, 9);
+		addBorderedCell("Bibelstudien", row, borderedCellStyle, 10);
+		addBorderedCell("\u2300", row, borderedCellStyle, 11);
+		
+		String rowNumAsString;	
+		for(int i = 0, rowNum = startRow + 1; i< Const.MONATE.length;i++, rowNum++) {
+			row = sheet.createRow(rowNum);
+			rowNumAsString = Integer.toString(rowNum + 1);
+			addBorderedCell(Const.MONATE[i], row, borderedCellStyle, 0);
+			addBorderedCell("", row, borderedCellStyle, 1); //Anzahl
+			addBorderedCell("", row, borderedCellStyle, 2); //Abgabe
+			addBorderedCellWithFormular("IFERROR(C" + rowNumAsString + "/B" + rowNumAsString + ",\"\")", row, borderedCellStyle, 3); //Abgabe Schnitt
+			addBorderedCell("", row, borderedCellStyle, 4); //Video
+			addBorderedCellWithFormular("IFERROR(E" + rowNumAsString + "/B" + rowNumAsString + ",\"\")", row, borderedCellStyle, 5); //Video Schnitt
+			addBorderedCell("", row, borderedCellStyle, 6); //Stunden
+			addBorderedCellWithFormular("IFERROR(G" + rowNumAsString + "/B" + rowNumAsString + ",\"\")", row, borderedCellStyle, 7); //Stunden Schnitt
+			addBorderedCell("", row, borderedCellStyle, 8); //Rückbesuche
+			addBorderedCellWithFormular("IFERROR(I" + rowNumAsString + "/B" + rowNumAsString + ",\"\")", row, borderedCellStyle, 9); //Rückbesuche Schnitt
+			addBorderedCell("", row, borderedCellStyle, 10); //Studien
+			addBorderedCellWithFormular("IFERROR(K" + rowNumAsString + "/B" + rowNumAsString + ",\"\")", row, borderedCellStyle, 11); //Studien Schnitt
+		}
+		
+		//Summenzeile
+		row = sheet.createRow(startRow + 13);
+		final String startRowAsString = Integer.toString(startRow + 2);
+		final String endSumRowAsString = Integer.toString(startRow + 13);
+		rowNumAsString = Integer.toString(startRow + 14);
+		addBorderedCell("Insgesamt", row, borderedCellStyle, 0);
+		addBorderedCellWithFormular("IFERROR( SUM( B" + startRowAsString + ":B" + endSumRowAsString
+			+ ") / COUNTIF(B" + startRowAsString + ":B" + endSumRowAsString + "), \">0\" )" , row, borderedCellStyle, 1);
+		addBorderedCellWithFormular("SUM(C" + startRowAsString + ":C" + endSumRowAsString + ")", row, borderedCellStyle, 2);
+	}
+	private static void deleteRows(final Sheet sheet, final int from, final int to) {
+		Row row;
+		for(int i = to; i>= from; i--) {
+			row = sheet.getRow(i);
+			if(row != null) {
+				sheet.removeRow(row);
+			}
+		}
+	}
+	private static void bearbeiteBesucherSheet(final Sheet sheet, final int numRows, final String jahr, final CellStyle borderedCellStyle) {		
+		final int startRow = numRows+4;
+		Row row = sheet.createRow(startRow);
+		addBorderedCell("Jahr ", row, borderedCellStyle, 0); //Wird eh ueberschrieben
+		addBorderedCell("Zahl der Zus.", row, borderedCellStyle, 1);
+		addBorderedCell("Anw.-Gesamtz. f. d. Mo.", row, borderedCellStyle, 2);
+		addBorderedCell("Dschn. Anw.-Zahl je Woche", row, borderedCellStyle, 3);
+		
+		String rowNumAsString;
+		
+		for(int i = 0, rowNum = startRow + 1; i< Const.MONATE.length;i++, rowNum++) {
+			row = sheet.createRow(rowNum);
+			rowNumAsString = Integer.toString(rowNum + 1);
+			addBorderedCell(Const.MONATE[i], row, borderedCellStyle, 0);
+			addBorderedCell("", row, borderedCellStyle, 1);
+			addBorderedCell("", row, borderedCellStyle, 2);
+			addBorderedCellWithFormular("IFERROR(C" + rowNumAsString + "/B" + rowNumAsString + ",\"\")", row, borderedCellStyle, 3);
+		}
+		
+		//Summenzeile anhaengen
+		row = sheet.createRow(startRow + 13);
+		addBorderedCell("Total", row, borderedCellStyle, 0);
+		rowNumAsString = Integer.toString(startRow + 13);
+		addBorderedCellWithFormular("SUM(B" + (startRow + 2) + ":B" + rowNumAsString + ')', row, borderedCellStyle, 1);
+		addBorderedCellWithFormular("SUM(C" + (startRow + 2) + ":C" + rowNumAsString + ')', row, borderedCellStyle, 2);
+		
+		rowNumAsString = Integer.toString(startRow + 14);
+		addBorderedCellWithFormular("IFERROR(C" + rowNumAsString + " / B" + rowNumAsString + ",\"\")", row, borderedCellStyle, 3);
+		
+		//Evtl. vorige Jahre nach unten schieben
+		for(int i = numRows; i >= 5; i -= 17) {
+			copyValsDown(sheet, i-13, i-13, 0, 0, 17); //Feld mit dem Jahr uebernehmen
+			copyValsDown(sheet, i-12, i-1, 1, 2, 17);
+		}
+		
+		//Setze das Jahr jetzt in der obersten
+		sheet.getRow(5).getCell(0).setCellValue("Jahr " + jahr);
+		
+		//Wenn es jetzt mehr als 4 Jahre sind, das letzte Jahr entfernen. Loesche damit natuerlich mein gerade erstelltes, aber um die Optimierung kann ich mich spaeter kuemmern
+		if(numRows >= 52) {
+			deleteRows(sheet, numRows + 1, numRows + 17);
+		}
+	}
+	/**
+	 * Kopiert die Werte der Zellen weiter nach unten
+	 * 
+	 * @param sheet Arbeitsblatt welches zu bearbeiten ist
+	 * @param startRow ab Welcher Zeile begonnen werden soll mit dem kopieren
+	 * @param endRow Bis zu welcher Zeile gegangen werden soll
+	 * @param startCol Ab welcher Spalte die Werte genommen werden sollen
+	 * @param endCol Bis zu welcher Spalte gegangen werden soll
+	 * @param offset Um wie viele Zeilen die Werte runter kopiert werden sollen
+	 */
+	private static void copyValsDown(final Sheet sheet, final int startRow, final int endRow, final int startCol, final int endCol, final int offset) {
+		Row srcRow, trgRow;
+		for(int rowNum = startRow; rowNum <= endRow; rowNum++) {
+			srcRow = sheet.getRow(rowNum);
+			if(srcRow == null) {
+				continue;
+			}
+			trgRow = sheet.getRow(rowNum + offset);
+			if(trgRow == null) {
+				trgRow = sheet.createRow(rowNum + offset);
+			}
+			for(int colNum = startCol; colNum <= endCol; colNum++) {
+				copyVals(srcRow, trgRow, colNum);
+			}
+		}
+	}
+	/**
+	 * Kopiert die Werte einer Spalte von srcRow nach trgRow und leert die Quell-Spalte
+	 * danach
+	 * 
+	 * @param srcRow Quell Zeile
+	 * @param trgRow Ziel Zeile
+	 * @param col Spaltennummer
+	 */
+	private static void copyVals(final Row srcRow, final Row trgRow, final int col) {
+		final Cell srcCell = srcRow.getCell(col);
+		if(srcCell == null) {
+			return;
+		}
+		Cell trgCell = trgRow.getCell(col);
+		if(trgCell == null) {
+			trgCell = trgRow.createCell(col);
+		}
+		switch(srcCell.getCellType()) {
+		case BLANK:
+			trgCell.setBlank();
+			break;
+		case NUMERIC:
+			trgCell.setCellValue(srcCell.getNumericCellValue());
+			break;
+		case FORMULA:
+			trgCell.setCellFormula(srcCell.getCellFormula());
+			break;
+		case STRING:
+			trgCell.setCellValue(srcCell.getStringCellValue());
+		}
+		srcCell.setBlank();
+	}
+	private static void addBorderedCell(final String text, final Row row, final CellStyle borderedCellStyle, final int colNum) {
+		createBorderedCell(row, borderedCellStyle, colNum).setCellValue(text);
+	}
+	private static void addBorderedCellWithFormular(final String formula, final Row row, final CellStyle borderedCellStyle, final int colNum) {
+		createBorderedCell(row, borderedCellStyle, colNum).setCellFormula(formula);
+	}
+	private static Cell createBorderedCell(final Row row, final CellStyle borderedStyle, final int col) {
+		final Cell cell = row.createCell(col);
+		cell.setCellStyle(borderedStyle);
+		return cell;
+	}
+}

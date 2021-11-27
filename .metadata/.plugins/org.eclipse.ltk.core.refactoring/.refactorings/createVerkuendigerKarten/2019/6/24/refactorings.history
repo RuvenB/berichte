@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;fileName&apos; in &apos;de.beckers.file.NextFile.findNewest(...)&apos; to &apos;toSearchFileName&apos;&#x0D;&#x0A;- Original project: &apos;createVerkuendigerKarten&apos;&#x0D;&#x0A;- Original element: &apos;de.beckers.file.NextFile.findNewest(File).fileName&apos;&#x0D;&#x0A;- Renamed element: &apos;fileName&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;fileName&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src\/main\/java&lt;de.beckers.file{NextFile.java[NextFile~findNewest~QFile;@fileName!2075!2117!2088!2095!QString;!16!false" name="toSearchFileName" references="true" stamp="1560178556999" version="1.0"/>
+</session>
