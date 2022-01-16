@@ -389,12 +389,17 @@ public class UbernehmeJahr {
 
 		int i = 1;
 		Row row = sheet.getRow(i);
+		Cell cell;
 		String name;
 		String gruppe;
 		Collection<String> verkInGruppe;
 		while (row != null) {
 
-			name = row.getCell(0).getStringCellValue();
+			cell = row.getCell(0);
+			if(cell == null){
+				break;
+			}
+			name = cell.getStringCellValue();
 			if (name == null || name.isEmpty()) {
 				break;
 			}
