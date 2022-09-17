@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.IndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -262,6 +263,7 @@ public class ErstelleKarten
     	
     	final String pdValFromBasis = row.getCell(13).getStringCellValue();
     	final String pdStringVal;
+		final IndexedColorMap colMap = wb.getStylesSource().getIndexedColors();
     	final Color tabFarbe;
     	if(pdValFromBasis.equalsIgnoreCase("UNT")) {
     		pdStringVal = VERK_VALS[0];
@@ -281,7 +283,7 @@ public class ErstelleKarten
     	}
     	aemterRow.createCell(2).setCellValue(pdStringVal);
     	aemterRow.createCell(3).setCellValue(dienstAmtFuerVerk);
-    	verkSheet.setTabColor(new XSSFColor(tabFarbe));
+    	verkSheet.setTabColor(new XSSFColor(tabFarbe, colMap));
     }
     private static void addValidation(final DataValidationHelper helper, final String[] values, final int row, final int col, final Sheet sheet) {
     	DataValidationConstraint constraint = helper.createExplicitListConstraint(values);

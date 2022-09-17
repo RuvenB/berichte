@@ -349,12 +349,22 @@ public class UbernehmeJahr {
 					.println("Zeile nicht vorhanden bei monatsIndex " + monatsIndex + " und Verkündiger: " + verkName);
 			return;
 		}
-		row.getCell(1).setCellValue(zeile.abgaben);
-		row.getCell(2).setCellValue(zeile.video);
-		row.getCell(3).setCellValue(zeile.stunden);
-		row.getCell(4).setCellValue(zeile.rb);
-		row.getCell(5).setCellValue(zeile.hb);
-		row.getCell(6).setCellValue(zeile.bemerkung);
+		getCell(row, 1).setCellValue(zeile.abgaben);
+		getCell(row, 2).setCellValue(zeile.video);
+		getCell(row, 3).setCellValue(zeile.stunden);
+		getCell(row, 4).setCellValue(zeile.rb);
+		getCell(row, 5).setCellValue(zeile.hb);
+		getCell(row, 6).setCellValue(zeile.bemerkung);
+	}
+	/**
+	 * Um eine NullPointerException zu verhindern, wenn es eine Zelle in der Zeile nicht gibt.
+	 * @param row
+	 * @param cellNum
+	 * @return
+	 */
+	private static Cell getCell(final Row row, final int cellNum){
+		Cell c = row.getCell(cellNum);
+		return c == null ? row.createCell(cellNum) : c;
 	}
 
 	private static BerichtsZeile leseZeile(final Row row) {
