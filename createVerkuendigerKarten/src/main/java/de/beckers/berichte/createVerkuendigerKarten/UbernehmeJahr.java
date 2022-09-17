@@ -25,7 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import de.beckers.file.NextFile;
 
 public class UbernehmeJahr {
-	private static class BerichtsZeile{
+	private static class BerichtsZeile {
 		private int anzahl = 0;
 		public double stunden;
 		public int abgaben;
@@ -33,22 +33,27 @@ public class UbernehmeJahr {
 		public int video;
 		public int hb;
 		public String bemerkung;
-		
+
 		public void addStunden(final double h) {
 			this.stunden += h;
 		}
+
 		public void addAbgaben(final int ab) {
-			this.abgaben+= ab;
+			this.abgaben += ab;
 		}
+
 		public void addRb(final int r) {
 			this.rb += r;
 		}
+
 		public void addVideo(final int v) {
 			this.video += v;
 		}
+
 		public void addHb(final int h) {
 			this.hb += h;
 		}
+
 		public void addBericht(final BerichtsZeile b) {
 			this.addStunden(b.stunden);
 			this.addAbgaben(b.abgaben);
@@ -58,7 +63,8 @@ public class UbernehmeJahr {
 			this.anzahl++;
 		}
 	}
-	private static class MonSum{
+
+	private static class MonSum {
 		private final BerichtsZeile verk = new BerichtsZeile();
 		private final BerichtsZeile hipi = new BerichtsZeile();
 		private final BerichtsZeile pio = new BerichtsZeile();
@@ -96,13 +102,13 @@ public class UbernehmeJahr {
 		}
 		final Map<String, Collection<String>> gruppen = erstelleGruppen(eingabeDatei);
 		eingabeDatei.close();
-		eingabeDatei = null; //Schonmal was Speicher frei machen
+		eingabeDatei = null; // Schonmal was Speicher frei machen
 
 		setzeGruppeEin(verkDatei, gruppen);
 
 		verkDatei.getCreationHelper()
-		.createFormulaEvaluator()
-		.evaluateAll();
+				.createFormulaEvaluator()
+				.evaluateAll();
 		final File ausFile = NextFile.nextFile(output);
 		final FileOutputStream outStream = new FileOutputStream(ausFile);
 		verkDatei.write(outStream);
@@ -242,7 +248,7 @@ public class UbernehmeJahr {
 				anwRow.getCell(1).setCellValue(cell.getNumericCellValue()); // Ja, ich bin manchmal Optimist (und will
 																			// auch Zeit beim Coden sparen)
 				cell = row.getCell(2);
-				if(checkCellForNumeric(cell)){
+				if (checkCellForNumeric(cell)) {
 					anwRow.getCell(2).setCellValue(cell.getNumericCellValue());
 				}
 
@@ -278,19 +284,19 @@ public class UbernehmeJahr {
 					anwRow = anwesendenSheet.getRow(6 + monatIndex);
 					anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
 					cell = row.getCell(6);
-					if(checkCellForNumeric(cell)){
+					if (checkCellForNumeric(cell)) {
 						iZahl = cell.getNumericCellValue();
 						anwRow.getCell(2).setCellValue(iZahl);
 					}
 				}
 				// Chinesich
 				cell = row.getCell(9);
-				if(checkCellForNumeric(cell)){
+				if (checkCellForNumeric(cell)) {
 					anwesendenSheet = verkDatei.getSheetAt(4);
 					anwRow = anwesendenSheet.getRow(6 + monatIndex);
 					anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
 					cell = row.getCell(10);
-					if(checkCellForNumeric(cell)){
+					if (checkCellForNumeric(cell)) {
 						cZahl = cell.getNumericCellValue();
 						anwRow.getCell(2).setCellValue(cZahl);
 					}
@@ -300,9 +306,9 @@ public class UbernehmeJahr {
 				anwRow = anwesendenSheet.getRow(6 + monatIndex);
 				anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
 				cell = row.getCell(2);
-				if(checkCellForNumeric(cell)){
+				if (checkCellForNumeric(cell)) {
 					dZahl = cell.getNumericCellValue();
-				}else{
+				} else {
 					dZahl = 0;
 				}
 				anwRow.getCell(2).setCellValue(dZahl + iZahl + cZahl); // Summe der Gruppen
@@ -310,8 +316,9 @@ public class UbernehmeJahr {
 			}
 		}
 	}
-	private static boolean checkCellForNumeric(final Cell cell){
-		if(cell == null){
+
+	private static boolean checkCellForNumeric(final Cell cell) {
+		if (cell == null) {
 			return false;
 		}
 		final CellType ct = cell.getCellType();
@@ -336,6 +343,12 @@ public class UbernehmeJahr {
 					.println("Zeile nicht vorhanden bei monatsIndex " + monatsIndex + " und Verkündiger: " + verkName);
 			return;
 		}
+		Cell c = row.getCell(1);
+		if (c == null) {
+			System.err
+					.println("Zeile nicht vorhanden bei monatsIndex " + monatsIndex + " und Verkündiger: " + verkName);
+			return;
+		}
 		row.getCell(1).setCellValue(zeile.abgaben);
 		row.getCell(2).setCellValue(zeile.video);
 		row.getCell(3).setCellValue(zeile.stunden);
@@ -356,8 +369,8 @@ public class UbernehmeJahr {
 		if (bemerkCell != null) {
 			ret.bemerkung = bemerkCell.getStringCellValue();
 		}
-		if(ret.bemerkung == null || ret.bemerkung.isEmpty()){
-			if("Hilfspionier".equalsIgnoreCase(row.getCell(1).getStringCellValue())){
+		if (ret.bemerkung == null || ret.bemerkung.isEmpty()) {
+			if ("Hilfspionier".equalsIgnoreCase(row.getCell(1).getStringCellValue())) {
 				ret.bemerkung = "Hilfspionier";
 			}
 		}
@@ -396,7 +409,7 @@ public class UbernehmeJahr {
 		while (row != null) {
 
 			cell = row.getCell(0);
-			if(cell == null){
+			if (cell == null) {
 				break;
 			}
 			name = cell.getStringCellValue();
@@ -425,13 +438,15 @@ public class UbernehmeJahr {
 			erstelleGruppenDatei(gruppe, gruppen.get(gruppe), kartenDatei);
 		}
 	}
-	private static void erstelleGruppenDatei(final String gruppe, final Collection<String> verkInGruppe, final File datei) throws IOException, InvalidFormatException {
+
+	private static void erstelleGruppenDatei(final String gruppe, final Collection<String> verkInGruppe,
+			final File datei) throws IOException, InvalidFormatException {
 		final File tmp = File.createTempFile(gruppe, ".xslsx");
 		Files.copy(datei.toPath(), tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		final Workbook wb = new XSSFWorkbook(tmp);
 		final int numOfSheets = wb.getNumberOfSheets();
-		for(int i = numOfSheets-1; i>=0;i--) {
-			if(!verkInGruppe.contains(wb.getSheetAt(i).getSheetName())) {
+		for (int i = numOfSheets - 1; i >= 0; i--) {
+			if (!verkInGruppe.contains(wb.getSheetAt(i).getSheetName())) {
 				wb.removeSheetAt(i);
 			}
 		}

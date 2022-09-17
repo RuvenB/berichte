@@ -6,31 +6,11 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Debug (Launch) - Current File",
-            "request": "launch",
-            "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "Debug (Launch)-ErstelleKarten<createVerkuendigerKarten>",
-            "request": "launch",
-            "mainClass": "de.beckers.berichte.createVerkuendigerKarten.ErstelleKarten",
-            "projectName": "createVerkuendigerKarten"
-        },
-        {
-            "type": "java",
-            "name": "Debug (Launch)-FuegeJahrHinzu<createVerkuendigerKarten>",
-            "request": "launch",
-            "mainClass": "de.beckers.berichte.createVerkuendigerKarten.FuegeJahrHinzu",
-            "projectName": "createVerkuendigerKarten",
-            "args": "C:/Users/Ruven/Documents/Sekretär/Berichte/verk.xlsx 2021"
-        },
-        {
-            "type": "java",
             "name": "Debug (Launch)-UbernehmeJahr<createVerkuendigerKarten>",
             "request": "launch",
             "mainClass": "de.beckers.berichte.createVerkuendigerKarten.UbernehmeJahr",
-            "projectName": "createVerkuendigerKarten"
+            "projectName": "createVerkuendigerKarten",
+            "args":"D:/Sekretär/Berichte/Berichte_2022.xlsx D:/Sekretär/Berichte/verk.xlsx"
         }
     ]
 }
