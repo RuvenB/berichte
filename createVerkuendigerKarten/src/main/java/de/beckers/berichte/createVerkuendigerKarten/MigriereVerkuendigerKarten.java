@@ -8,17 +8,12 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -61,11 +56,17 @@ public class MigriereVerkuendigerKarten {
         if(!checkSheet(sheet)) {
             return;
         }
+        setUeberschrift(sheet);
         migriereHeader(sheet);
         migriereJahresHeader(sheet, boldFont, normalFont);
         migriereJahre(sheet);
         migriereSummenZeilen(sheet);
         migriereDurchSchnitt(sheet);
+    }
+    private static void setUeberschrift(XSSFSheet sheet) {
+        XSSFRow row = sheet.getRow(0);
+        XSSFCell cell = row.getCell(2);
+        cell.setCellValue("VERKÜNDIGERBERICHTSKARTE DER VERSAMMLUNG");
     }
     /**
      * Geht die Jahre durch und aendert jeweils die Überschrift
@@ -154,7 +155,7 @@ public class MigriereVerkuendigerKarten {
         if(row == null) {
             return false;
         }
-        String [] valArr = new String[]{"☑", "☐"};
+        final String [] valArr = new String[]{"☑", "☐"};
 
         for(int i=startRow, max = startRow + 12; i < max; i++) {
             migriereMonatsZeile(sheet, i, valArr);
@@ -172,15 +173,8 @@ public class MigriereVerkuendigerKarten {
         String bemerkung = "";
         boolean hipi = false;
 
-        //Monat linksbündig
-        XSSFCell cell = row.getCell(0);
-        XSSFCellStyle style = cell.getCellStyle();
-        style.setAlignment(HorizontalAlignment.LEFT);
-        //Bisschen albern, aber sonst wurde nicht linksbündig gesetzt
-        cell.setCellValue(cell.getStringCellValue());
-
         //Erstmal alte Werte einlesen
-        cell = row.getCell(3);
+        XSSFCell cell = row.getCell(3);
         if(cell != null) {
             stunden = cell.getNumericCellValue();
         }
@@ -195,6 +189,15 @@ public class MigriereVerkuendigerKarten {
         }
 
         //Nun einsetzen
+        sheet.addMergedRegion(new CellRangeAddress(rowNum, rowNum, 5, 6));
+
+        //Monat linksbündig
+        cell = row.getCell(0);
+        XSSFCellStyle style = cell.getCellStyle();
+        style.setAlignment(HorizontalAlignment.LEFT);
+        style.setFillPattern(FillPatternType.NO_FILL);
+        //Bisschen albern, aber sonst wurde nicht linksbündig gesetzt
+        cell.setCellValue(cell.getStringCellValue());
 
         //Beteiligt
         cell = row.getCell(1);
@@ -204,7 +207,11 @@ public class MigriereVerkuendigerKarten {
         
         //Studien
         cell = row.getCell(2);
-        cell.setCellValue(studien);
+        if(studien > 0) {
+            cell.setCellValue(studien);
+        }else{
+            cell.setBlank();
+        }
         style = cell.getCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
 
@@ -217,12 +224,15 @@ public class MigriereVerkuendigerKarten {
 
         //Stunden
         cell = row.getCell(4);
-        cell.setCellValue(stunden);
+        if(stunden > 0) {
+            cell.setCellValue(stunden);
+        }else{
+            cell.setBlank();
+        }
         style = cell.getCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
 
         //Bemerkung
-        sheet.addMergedRegion(new CellRangeAddress(rowNum, rowNum, 5, 6));
         cell = row.getCell(5);
         cell.setCellValue(bemerkung);
     }
@@ -265,6 +275,8 @@ public class MigriereVerkuendigerKarten {
         //Hipi
         cell = row.getCell(3);
         cell.setBlank();
+        style = cell.getCellStyle();
+        style.setFillPattern(FillPatternType.NO_FILL);
 
         //Stunden
         cell = row.getCell(4);
@@ -280,18 +292,8 @@ public class MigriereVerkuendigerKarten {
         //Bemerkung
         cell = row.getCell(5);
         cell.setBlank();
-        style = cell.getCellStyle();
-        style.setBorderBottom(BorderStyle.NONE);
-        style.setBorderRight(BorderStyle.NONE);
-        style.setBorderTop(BorderStyle.NONE);
         cell = row.getCell(6);
         cell.setBlank();
-        style = cell.getCellStyle();
-        style.setBorderBottom(BorderStyle.NONE);
-        style.setBorderRight(BorderStyle.NONE);
-        style.setBorderLeft(BorderStyle.NONE);
-        style.setBorderTop(BorderStyle.NONE);
-
 
         return true;
     }
@@ -318,6 +320,7 @@ public class MigriereVerkuendigerKarten {
         style = cell.getCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
 
+        //Hipi
         cell = row.getCell(3);
         cell.setCellFormula("COUNTIF(D"
         + startRowString
@@ -326,18 +329,10 @@ public class MigriereVerkuendigerKarten {
         + ",\"☑\")");
         style = cell.getCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
+        style.setFillPattern(FillPatternType.NO_FILL);
 
         cell = row.getCell(5);
         cell.setBlank();
-        style = cell.getCellStyle();
-        style.setBorderRight(BorderStyle.NONE);
-        style.setBorderBottom(BorderStyle.NONE);
-        style.setBorderTop(BorderStyle.NONE);
-        cell = row.getCell(6);
-        style = cell.getCellStyle();
-        style.setBorderRight(BorderStyle.NONE);
-        style.setBorderBottom(BorderStyle.NONE);
-        style.setBorderTop(BorderStyle.NONE);
 
         return true;
     }
