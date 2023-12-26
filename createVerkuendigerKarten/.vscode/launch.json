@@ -6,6 +6,21 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MigriereVerkuendigerKarten",
+            "request": "launch",
+            "mainClass": "de.beckers.berichte.createVerkuendigerKarten.MigriereVerkuendigerKarten",
+            "projectName": "createVerkuendigerKarten",
+            "args": "/Users/ruvenbeckers/Documents/berichteNeu/Sanderau-2023-06-19.xlsx"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch) MigriereJahresTabelle",
+            "request": "launch",
+            "mainClass": "de.beckers.berichte.createVerkuendigerKarten.MigriereJahresTabelle",
+            "args": "/Users/ruvenbeckers/Documents/berichteNeu/Berichte_2022.xlsx"
+        },
+        {
+            "type": "java",
             "name": "Debug (Launch) - Current File",
             "request": "launch",
             "mainClass": "${file}"
@@ -22,14 +37,15 @@
             "name": "Debug (Launch)-FuegeJahrHinzu<createVerkuendigerKarten>",
             "request": "launch",
             "mainClass": "de.beckers.berichte.createVerkuendigerKarten.FuegeJahrHinzu",
-            "projectName": "createVerkuendigerKarten"
+            "projectName": "createVerkuendigerKarten",
+            "args": "/Users/ruvenbeckers/Documents/Sekretär/Berichte/verk.xlsx 2023"
         },
         {
             "type": "java",
             "name": "Debug (Launch)-UbernehmeJahr<createVerkuendigerKarten>",
             "request": "launch",
             "mainClass": "de.beckers.berichte.createVerkuendigerKarten.UbernehmeJahr",
-            "args": "C:/Users/Ruven/Documents/Sekretär/Berichte/Berichte_2022.xlsx C:/Users/Ruven/Documents/Sekretär/Berichte/verk.xlsx",
+            "args": "/Users/ruvenbeckers/Documents/Sekretär/Berichte/Berichte_2022.xlsx /Users/ruvenbeckers/Documents/Sekretär/Berichte/verk.xlsx",
             "projectName": "createVerkuendigerKarten",
             "vmArgs": "-Xmx2524m"
         }

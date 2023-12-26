@@ -97,8 +97,8 @@ public class UbernehmeJahr {
 		XSSFWorkbook eingabeDatei = new XSSFWorkbook(input);
 		final XSSFWorkbook verkDatei = new XSSFWorkbook(outFileInStream);
 
-		for (int i = 0; i < Const.MONATE.length; i++) {
-			uebertrageMonat(Const.MONATE[i], i, eingabeDatei, verkDatei);
+		for (int i = 0; i < Monate.LISTE.length; i++) {
+			uebertrageMonat(Monate.LISTE[i], i, eingabeDatei, verkDatei);
 		}
 		final Map<String, Collection<String>> gruppen = erstelleGruppen(eingabeDatei);
 		eingabeDatei.close();
@@ -255,7 +255,7 @@ public class UbernehmeJahr {
 				// Gruppen: Italienisch
 				cell = row.getCell(5);
 				if (checkCellForNumeric(cell)) {
-					anwesendenSheet = verkDatei.getSheetAt(5);
+					anwesendenSheet = verkDatei.getSheetAt(3);
 					anwRow = anwesendenSheet.getRow(6 + monatIndex);
 					anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
 					cell = row.getCell(6);
@@ -264,23 +264,23 @@ public class UbernehmeJahr {
 					}
 				}
 				// Gruppe: chinesich
-				cell = row.getCell(9);
-				if (checkCellForNumeric(cell)) {
-					anwesendenSheet = verkDatei.getSheetAt(3);
-					anwRow = anwesendenSheet.getRow(6 + monatIndex);
-					anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
-					cell = row.getCell(10);
-					if (checkCellForNumeric(cell)) {
-						anwRow.getCell(2).setCellValue(cell.getNumericCellValue());
-					}
-				}
+				// cell = row.getCell(9);
+				// if (checkCellForNumeric(cell)) {
+				// 	anwesendenSheet = verkDatei.getSheetAt(3);
+				// 	anwRow = anwesendenSheet.getRow(6 + monatIndex);
+				// 	anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
+				// 	cell = row.getCell(10);
+				// 	if (checkCellForNumeric(cell)) {
+				// 		anwRow.getCell(2).setCellValue(cell.getNumericCellValue());
+				// 	}
+				// }
 
 				// Am Wochenende: Zuerst schauen, ob ich Gruppen habe, da ich deren Anzahl
 				// hinzurechnen wuerde
 				row = monatSheet.getRow(i + 2);
 				cell = row.getCell(5); // Italienisch
 				if (checkCellForNumeric(cell)) {
-					anwesendenSheet = verkDatei.getSheetAt(6);
+					anwesendenSheet = verkDatei.getSheetAt(4);
 					anwRow = anwesendenSheet.getRow(6 + monatIndex);
 					anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
 					cell = row.getCell(6);
@@ -290,17 +290,17 @@ public class UbernehmeJahr {
 					}
 				}
 				// Chinesich
-				cell = row.getCell(9);
-				if (checkCellForNumeric(cell)) {
-					anwesendenSheet = verkDatei.getSheetAt(4);
-					anwRow = anwesendenSheet.getRow(6 + monatIndex);
-					anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
-					cell = row.getCell(10);
-					if (checkCellForNumeric(cell)) {
-						cZahl = cell.getNumericCellValue();
-						anwRow.getCell(2).setCellValue(cZahl);
-					}
-				}
+				// cell = row.getCell(9);
+				// if (checkCellForNumeric(cell)) {
+				// 	anwesendenSheet = verkDatei.getSheetAt(4);
+				// 	anwRow = anwesendenSheet.getRow(6 + monatIndex);
+				// 	anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
+				// 	cell = row.getCell(10);
+				// 	if (checkCellForNumeric(cell)) {
+				// 		cZahl = cell.getNumericCellValue();
+				// 		anwRow.getCell(2).setCellValue(cZahl);
+				// 	}
+				// }
 				cell = row.getCell(1);
 				anwesendenSheet = verkDatei.getSheetAt(2);
 				anwRow = anwesendenSheet.getRow(6 + monatIndex);

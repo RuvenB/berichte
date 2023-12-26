@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NextFile {
+public final class NextFile {
 	private static final Pattern ZERLEGE_PATTERN = Pattern.compile("^(.+?)(-\\d{4}-\\d\\d-\\d\\d( [(]\\d+[)])?)?([.].+)$");
 	/**
 	 * Erstellt einen neuen Dateinamen.

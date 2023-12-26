@@ -13,13 +13,11 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import de.beckers.file.NextFile;
@@ -160,10 +158,11 @@ public class FuegeJahrHinzu {
 		}
 	}
 	private static void bearbeiteVerkSheet(final Sheet sheet, final int numRows, final String jahr, final Formate formate) {
-		if(sheet.getRow(2).getCell(2).getStringCellValue().equals("untätig")) {
-			//Brauche da kein Jahr hinzuzufügen
-			return;
-		}
+		//Ausdokumentiert, da Untätige jetzt in Extra Datei sind und nicht mehr aus dem Kopf hervorgeht
+		// if(sheet.getRow(2).getCell(2).getStringCellValue().equals("untätig")) {
+		// 	//Brauche da kein Jahr hinzuzufügen
+		// 	return;
+		// }
 		
 		final int startRow = numRows + 4;
 		Row row = sheet.createRow(startRow);
@@ -176,9 +175,9 @@ public class FuegeJahrHinzu {
 		addBorderedCell("Bibelstudien", row, formate.ueberschriftZelle, 5);
 		addBorderedCell("Bemerkungen", row, formate.ueberschriftZelle, 6);
 		
-		for(int i = 0, rowNum = startRow + 1; i< Const.MONATE.length;i++, rowNum++) {
+		for(int i = 0, rowNum = startRow + 1; i< Monate.LISTE.length;i++, rowNum++) {
 			row = sheet.createRow(rowNum);
-			addBorderedCell(Const.MONATE[i], row, formate.normaleZelle, 0);
+			addBorderedCell(Monate.LISTE[i], row, formate.normaleZelle, 0);
 			addBorderedCell("", row, formate.normaleZelle, 1); //Abgabe
 			addBorderedCell("", row, formate.normaleZelle, 2); //Video
 			addBorderedCell("", row, formate.stundenZelle, 3); //Stunden
@@ -238,12 +237,13 @@ public class FuegeJahrHinzu {
 		addBorderedCell("\u2300", row, formate.ueberschriftZelle, 9);
 		addBorderedCell("Bibelst.", row, formate.ueberschriftZelle, 10);
 		addBorderedCell("\u2300", row, formate.ueberschriftZelle, 11);
+		addBorderedCell("Bemerkungen", row, formate.ueberschriftZelle, 12);
 		
 		String rowNumAsString;	
-		for(int i = 0, rowNum = startRow + 1; i< Const.MONATE.length;i++, rowNum++) {
+		for(int i = 0, rowNum = startRow + 1; i< Monate.LISTE.length;i++, rowNum++) {
 			row = sheet.createRow(rowNum);
 			rowNumAsString = Integer.toString(rowNum + 1);
-			addBorderedCell(Const.MONATE[i], row, formate.normaleZelle, 0);
+			addBorderedCell(Monate.LISTE[i], row, formate.normaleZelle, 0);
 			addBorderedCell("", row, formate.normaleZelle, 1); //Anzahl
 			addBorderedCell("", row, formate.normaleZelle, 2); //Abgabe
 			addBorderedCellWithFormular("IFERROR(C" + rowNumAsString + "/B" + rowNumAsString + ",\"\")", row, formate.normaleZelle, 3); //Abgabe Schnitt
@@ -275,7 +275,7 @@ public class FuegeJahrHinzu {
 		//Evtl vorgie Jahre nach unten schieben
 		for(int i = numRows; i >= 5; i -= 17) {
 			copyValsDown(sheet, i-13, i-13, 0, 0, 17); //Feld mit dem Jahr uebernehmen
-			copyValsDown(sheet, i-12, i-1, 1, 10, 17);
+			copyValsDown(sheet, i-12, i-1, 1, 12, 17);
 		}
 		//Setze das Jahr jetzt in der obersten
 		sheet.getRow(4).getCell(0).setCellValue("Dienstjahr " + jahr);
@@ -309,10 +309,10 @@ public class FuegeJahrHinzu {
 		
 		String rowNumAsString;
 		
-		for(int i = 0, rowNum = startRow + 1; i< Const.MONATE.length;i++, rowNum++) {
+		for(int i = 0, rowNum = startRow + 1; i< Monate.LISTE.length;i++, rowNum++) {
 			row = sheet.createRow(rowNum);
 			rowNumAsString = Integer.toString(rowNum + 1);
-			addBorderedCell(Const.MONATE[i], row, formate.normaleZelle, 0);
+			addBorderedCell(Monate.LISTE[i], row, formate.normaleZelle, 0);
 			addBorderedCell("", row, formate.normaleZelle, 1);
 			addBorderedCell("", row, formate.normaleZelle, 2);
 			addBorderedCellWithFormular("IFERROR(C" + rowNumAsString + "/B" + rowNumAsString + ",\"\")", row, formate.normaleZelle, 3);
