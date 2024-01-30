@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -28,26 +29,13 @@ public class UbernehmeJahr {
 	private static class BerichtsZeile {
 		private int anzahl = 0;
 		public double stunden;
-		public int abgaben;
-		public int rb;
-		public int video;
 		public int hb;
 		public String bemerkung;
+		public boolean imDienst;
+		public boolean hipi;
 
 		public void addStunden(final double h) {
 			this.stunden += h;
-		}
-
-		public void addAbgaben(final int ab) {
-			this.abgaben += ab;
-		}
-
-		public void addRb(final int r) {
-			this.rb += r;
-		}
-
-		public void addVideo(final int v) {
-			this.video += v;
 		}
 
 		public void addHb(final int h) {
@@ -56,9 +44,6 @@ public class UbernehmeJahr {
 
 		public void addBericht(final BerichtsZeile b) {
 			this.addStunden(b.stunden);
-			this.addAbgaben(b.abgaben);
-			this.addRb(b.rb);
-			this.addVideo(b.video);
 			this.addHb(b.hb);
 			this.anzahl++;
 		}
@@ -116,6 +101,26 @@ public class UbernehmeJahr {
 		verkDatei.close();
 
 		erstelleGruppenDateien(ausFile, gruppen);
+	}
+
+	/**
+	 * Gibt zuruck, ob die Zelle ein Ankreuzen beschreibt
+	 * @param cell
+	 * @return
+	 */
+	private static boolean isTrue(XSSFCell cell){
+		if(cell == null) {
+			return false;
+		}
+		String val = cell.getStringCellValue();
+		if(val == null || val.isEmpty()) {
+			return false;
+		}
+		if(val.equals("☑")){
+			return true;
+		}
+		char begin = Character.toLowerCase(val.charAt(0) );
+		return begin == 'x' || begin == 'j';
 	}
 
 	private static void setzeGruppeEin(final XSSFWorkbook verkDatei, final Map<String, Collection<String>> gruppen) {
@@ -328,10 +333,7 @@ public class UbernehmeJahr {
 	private static void schreibeSummenZeile(final Sheet sheet, final BerichtsZeile sumZeile, final int monatsIndex) {
 		final Row row = sheet.getRow(monatsIndex + 5);
 		row.getCell(1).setCellValue(sumZeile.anzahl);
-		row.getCell(2).setCellValue(sumZeile.abgaben);
-		row.getCell(4).setCellValue(sumZeile.video);
 		row.getCell(6).setCellValue(sumZeile.stunden);
-		row.getCell(8).setCellValue(sumZeile.rb);
 		row.getCell(10).setCellValue(sumZeile.hb);
 	}
 
@@ -349,10 +351,7 @@ public class UbernehmeJahr {
 					.println("Zeile nicht vorhanden bei monatsIndex " + monatsIndex + " und Verkündiger: " + verkName);
 			return;
 		}
-		getCell(row, 1).setCellValue(zeile.abgaben);
-		getCell(row, 2).setCellValue(zeile.video);
 		getCell(row, 3).setCellValue(zeile.stunden);
-		getCell(row, 4).setCellValue(zeile.rb);
 		getCell(row, 5).setCellValue(zeile.hb);
 		getCell(row, 6).setCellValue(zeile.bemerkung);
 	}
@@ -369,13 +368,10 @@ public class UbernehmeJahr {
 
 	private static BerichtsZeile leseZeile(final Row row) {
 		final BerichtsZeile ret = new BerichtsZeile();
-		ret.stunden = getDoubleVal(row.getCell(5));
-		ret.abgaben = getIntVall(row, 3);
-		ret.rb = getIntVall(row, 6);
-		ret.video = getIntVall(row, 4);
-		ret.hb = getIntVall(row, 7);
+		ret.stunden = getDoubleVal(row.getCell(4));
+		ret.hb = getIntVall(row, 5);
 
-		final Cell bemerkCell = row.getCell(8);
+		final Cell bemerkCell = row.getCell(6);
 		if (bemerkCell != null) {
 			ret.bemerkung = bemerkCell.getStringCellValue();
 		}

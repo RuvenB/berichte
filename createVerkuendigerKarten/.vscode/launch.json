@@ -14,6 +14,14 @@
         },
         {
             "type": "java",
+            "name": "Debug (Launch) ErstelleEintragsKarten",
+            "request": "launch",
+            "mainClass": "de.beckers.berichte.createVerkuendigerKarten.ErstelleEintragKarten",
+            "projectName": "createVerkuendigerKarten",
+            "args": "\"/Users/ruvenbeckers/Documents/berichteNeu/Berichte_2022 Kopie-2023-12-26.xlsx\" August /Users/ruvenbeckers/Documents/berichteNeu"
+        },
+        {
+            "type": "java",
             "name": "Debug (Launch) MigriereJahresTabelle",
             "request": "launch",
             "mainClass": "de.beckers.berichte.createVerkuendigerKarten.MigriereJahresTabelle",
