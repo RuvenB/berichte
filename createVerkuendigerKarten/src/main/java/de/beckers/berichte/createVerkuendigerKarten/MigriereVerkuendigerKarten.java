@@ -23,6 +23,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import de.beckers.ExcelHelper;
 import de.beckers.file.NextFile;
 
+/**
+ * Nimmt das alte Format der Datei mit den Verkündigerkarten und baut es um.
+ */
 public class MigriereVerkuendigerKarten {
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -67,6 +70,7 @@ public class MigriereVerkuendigerKarten {
         XSSFRow row = sheet.getRow(0);
         XSSFCell cell = row.getCell(2);
         cell.setCellValue("VERKÜNDIGERBERICHTSKARTE DER VERSAMMLUNG");
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 2, 5));
     }
     /**
      * Geht die Jahre durch und aendert jeweils die Überschrift

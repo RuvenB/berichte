@@ -12,17 +12,23 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import de.beckers.ExcelHelper;
 import de.beckers.file.NextFile;
 
 public class UbernehmeJahr {
@@ -108,7 +114,7 @@ public class UbernehmeJahr {
 	 * @param cell
 	 * @return
 	 */
-	private static boolean isTrue(XSSFCell cell){
+	private static boolean isTrue(Cell cell){
 		if(cell == null) {
 			return false;
 		}
@@ -147,6 +153,33 @@ public class UbernehmeJahr {
 			}
 		}
 	}
+	/**
+	 * Sucht in den ersten 8 Seiten der Datei nach einem Arbeitsblatt,
+	 * dessen Namen dem Pattern entspricht.
+	 * Wenn gefunden, wird es zurueckgegeben, sonst null.
+	 * @param wb das Arbeitsheft
+	 * @param pattern regulärer Ausdruck, dem der Name entsprechen muss.
+	 * @return Das erste Arbeitsblatt, dass diesem entspricht, oder null, wenn nicht gefunden.
+	 */
+	private static XSSFSheet getSheetByPattern(XSSFWorkbook wb, String pattern) {
+		int sheetMax = wb.getNumberOfSheets();
+		int max = sheetMax < 8 ? sheetMax : 8;
+		Pattern p = Pattern.compile(pattern);
+		Matcher m;
+		for(int i = 0; i < max; i++){
+			XSSFSheet sheet = wb.getSheetAt(i);
+			if(sheet == null) {
+				//Kann ich mir keinen Fall fuer Vostellen, aber weiss ja nie
+				continue;
+			}
+			String sheetName = sheet.getSheetName();
+			m = p.matcher(sheetName);
+			if(m.matches()){
+				return sheet;
+			}
+		}
+		return null;
+	}
 
 	private static void uebertrageMonat(final String monat, final int monatIndex, final XSSFWorkbook jahrDatei,
 			final XSSFWorkbook verkDatei) {
@@ -163,7 +196,7 @@ public class UbernehmeJahr {
 		final MonSum monatsSumme = new MonSum();
 		BerichtsZeile zeile;
 		String verkTyp;
-		Sheet verkSheet;
+		XSSFSheet verkSheet;
 		int i = 1;
 		for (; i < 200; i++) {
 			row = monatSheet.getRow(i);
@@ -248,75 +281,59 @@ public class UbernehmeJahr {
 				if (cell == null) {
 					break;
 				}
-				anwesendenSheet = verkDatei.getSheetAt(1);
-				anwRow = anwesendenSheet.getRow(6 + monatIndex);
-				anwRow.getCell(1).setCellValue(cell.getNumericCellValue()); // Ja, ich bin manchmal Optimist (und will
-																			// auch Zeit beim Coden sparen)
-				cell = row.getCell(2);
-				if (checkCellForNumeric(cell)) {
-					anwRow.getCell(2).setCellValue(cell.getNumericCellValue());
+				anwesendenSheet = getSheetByPattern(verkDatei, "^Besucher.+unter.+deu.*$");
+				if(anwesendenSheet != null){
+					anwRow = anwesendenSheet.getRow(6 + monatIndex);
+					getCell(anwRow, 1).setCellValue(cell.getNumericCellValue());
+					cell = row.getCell(2);
+					if (checkCellForNumeric(cell)) {
+						anwRow.getCell(2).setCellValue(cell.getNumericCellValue());
+					}
 				}
 
 				// Gruppen: Italienisch
 				cell = row.getCell(5);
 				if (checkCellForNumeric(cell)) {
-					anwesendenSheet = verkDatei.getSheetAt(3);
-					anwRow = anwesendenSheet.getRow(6 + monatIndex);
-					anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
-					cell = row.getCell(6);
-					if (checkCellForNumeric(cell)) {
-						anwRow.getCell(2).setCellValue(cell.getNumericCellValue());
+					anwesendenSheet = getSheetByPattern(verkDatei, "^Besucher.+unter.+ital.+$");
+					if(anwesendenSheet != null) {
+						anwRow = anwesendenSheet.getRow(6 + monatIndex);
+						getCell(anwRow, 1).setCellValue(cell.getNumericCellValue());
+						cell = row.getCell(6);
+						if (checkCellForNumeric(cell)) {
+							getCell(anwRow, 2).setCellValue(cell.getNumericCellValue());
+						}
 					}
 				}
-				// Gruppe: chinesich
-				// cell = row.getCell(9);
-				// if (checkCellForNumeric(cell)) {
-				// 	anwesendenSheet = verkDatei.getSheetAt(3);
-				// 	anwRow = anwesendenSheet.getRow(6 + monatIndex);
-				// 	anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
-				// 	cell = row.getCell(10);
-				// 	if (checkCellForNumeric(cell)) {
-				// 		anwRow.getCell(2).setCellValue(cell.getNumericCellValue());
-				// 	}
-				// }
 
 				// Am Wochenende: Zuerst schauen, ob ich Gruppen habe, da ich deren Anzahl
 				// hinzurechnen wuerde
 				row = monatSheet.getRow(i + 2);
 				cell = row.getCell(5); // Italienisch
 				if (checkCellForNumeric(cell)) {
-					anwesendenSheet = verkDatei.getSheetAt(4);
-					anwRow = anwesendenSheet.getRow(6 + monatIndex);
-					anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
-					cell = row.getCell(6);
-					if (checkCellForNumeric(cell)) {
-						iZahl = cell.getNumericCellValue();
-						anwRow.getCell(2).setCellValue(iZahl);
+					anwesendenSheet = getSheetByPattern(verkDatei, "^Besucher am.+ita.*$");
+					if(anwesendenSheet != null) {
+						anwRow = anwesendenSheet.getRow(6 + monatIndex);
+						anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
+						cell = row.getCell(6);
+						if (checkCellForNumeric(cell)) {
+							iZahl = cell.getNumericCellValue();
+							anwRow.getCell(2).setCellValue(iZahl);
+						}
 					}
 				}
-				// Chinesich
-				// cell = row.getCell(9);
-				// if (checkCellForNumeric(cell)) {
-				// 	anwesendenSheet = verkDatei.getSheetAt(4);
-				// 	anwRow = anwesendenSheet.getRow(6 + monatIndex);
-				// 	anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
-				// 	cell = row.getCell(10);
-				// 	if (checkCellForNumeric(cell)) {
-				// 		cZahl = cell.getNumericCellValue();
-				// 		anwRow.getCell(2).setCellValue(cZahl);
-				// 	}
-				// }
 				cell = row.getCell(1);
-				anwesendenSheet = verkDatei.getSheetAt(2);
-				anwRow = anwesendenSheet.getRow(6 + monatIndex);
-				anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
-				cell = row.getCell(2);
-				if (checkCellForNumeric(cell)) {
-					dZahl = cell.getNumericCellValue();
-				} else {
-					dZahl = 0;
+				anwesendenSheet = getSheetByPattern(verkDatei, "^Besucher am.+deu.*$");
+				if(anwesendenSheet != null){
+					anwRow = anwesendenSheet.getRow(6 + monatIndex);
+					anwRow.getCell(1).setCellValue(cell.getNumericCellValue());
+					cell = row.getCell(2);
+					if (checkCellForNumeric(cell)) {
+						dZahl = cell.getNumericCellValue();
+					} else {
+						dZahl = 0;
+					}
+					anwRow.getCell(2).setCellValue(dZahl + iZahl + cZahl); // Summe der Gruppen
 				}
-				anwRow.getCell(2).setCellValue(dZahl + iZahl + cZahl); // Summe der Gruppen
 				break; // Brauche nicht weiter zu schauen.
 			}
 		}
@@ -331,29 +348,79 @@ public class UbernehmeJahr {
 	}
 
 	private static void schreibeSummenZeile(final Sheet sheet, final BerichtsZeile sumZeile, final int monatsIndex) {
+		if(sheet == null) {
+			return;
+		}
 		final Row row = sheet.getRow(monatsIndex + 5);
 		row.getCell(1).setCellValue(sumZeile.anzahl);
 		row.getCell(6).setCellValue(sumZeile.stunden);
 		row.getCell(10).setCellValue(sumZeile.hb);
 	}
 
-	private static void schreibeZeile(final Sheet verkSheet, final int monatsIndex, final BerichtsZeile zeile,
+	private static void schreibeZeile(final XSSFSheet verkSheet, final int monatsIndex, final BerichtsZeile zeile,
 			final String verkName) {
-		final Row row = verkSheet.getRow(monatsIndex + 7);
+		final int rowNum = monatsIndex + 7;
+		final XSSFRow row = verkSheet.getRow(rowNum);
 		if (row == null) {
 			System.err
 					.println("Zeile nicht vorhanden bei monatsIndex " + monatsIndex + " und Verkündiger: " + verkName);
 			return;
 		}
-		Cell c = row.getCell(1);
+		Cell c = row.getCell(0);
 		if (c == null) {
 			System.err
 					.println("Zeile nicht vorhanden bei monatsIndex " + monatsIndex + " und Verkündiger: " + verkName);
 			return;
 		}
-		getCell(row, 3).setCellValue(zeile.stunden);
-		getCell(row, 5).setCellValue(zeile.hb);
-		getCell(row, 6).setCellValue(zeile.bemerkung);
+		setCellBool(verkSheet, row, rowNum, 1, zeile.imDienst);
+		setCellNum(row, 2, zeile.hb);
+		setCellBool(verkSheet, row, rowNum, 3, zeile.hipi);
+		setCellNum(row, 4, zeile.stunden);
+		getCell(row, 5).setCellValue(zeile.bemerkung);
+	}
+	/**
+	 * Schreibt in dei Zeile die Zahl.
+	 * Wennd ei Zahl == 0 ist, wird die Zeile geleert.
+	 * @param row die Zeile
+	 * @param colNum die Spaltennummer
+	 * @param value der Wert, den ich schreiben soll
+	 */
+	private static void setCellNum(XSSFRow row, int colNum, double value){
+		XSSFCell cell = row.getCell(colNum);
+		if(cell == null){
+			if(value == 0){
+				return;
+			}
+			cell = row.createCell(colNum);
+		}
+		if(value == 0){
+			cell.setBlank();
+		}else{
+			cell.setCellValue(value);
+		}
+	}
+	/**
+	 * Setzt in die gewünschte Spalte einen Haken oder ein leeres Kästchen.
+	 * Wenn Zelle nicht vorhanden wird sie erstellt.
+	 * @param sheet Das Arbeitsblatt
+	 * @param row die Zeile
+	 * @param rowNum Zeilennummer
+	 * @param colNum Spaltennummer
+	 * @param value der Wert
+	 */
+	private static void setCellBool(XSSFSheet sheet, XSSFRow row, int rowNum, int colNum, boolean value) {
+		XSSFCell c = row.getCell(colNum);
+		if(c == null){
+			c = row.createCell(1);
+			XSSFCellStyle style = c.getCellStyle();
+			style.setAlignment(HorizontalAlignment.CENTER);
+			ExcelHelper.addDropDownValidation(sheet, rowNum, rowNum, colNum, colNum, new String[]{"☑", "☐"});
+		}
+		if(value) {
+			c.setCellValue("☑");
+		}else{
+			c.setCellValue("☐");
+		}
 	}
 	/**
 	 * Um eine NullPointerException zu verhindern, wenn es eine Zelle in der Zeile nicht gibt.
@@ -375,11 +442,18 @@ public class UbernehmeJahr {
 		if (bemerkCell != null) {
 			ret.bemerkung = bemerkCell.getStringCellValue();
 		}
+		boolean hipi = "Hilfspionier".equalsIgnoreCase(row.getCell(1).getStringCellValue());
 		if (ret.bemerkung == null || ret.bemerkung.isEmpty()) {
-			if ("Hilfspionier".equalsIgnoreCase(row.getCell(1).getStringCellValue())) {
+			if (hipi) {
 				ret.bemerkung = "Hilfspionier";
 			}
 		}
+		ret.hipi = hipi;
+		boolean beteiligt = isTrue(row.getCell(3));
+		if(!beteiligt && ret.stunden > 0){
+			beteiligt = true;
+		}
+		ret.imDienst = beteiligt;
 
 		return ret;
 	}

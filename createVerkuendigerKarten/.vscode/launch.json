@@ -53,7 +53,7 @@
             "name": "Debug (Launch)-UbernehmeJahr<createVerkuendigerKarten>",
             "request": "launch",
             "mainClass": "de.beckers.berichte.createVerkuendigerKarten.UbernehmeJahr",
-            "args": "/Users/ruvenbeckers/Documents/Sekretär/Berichte/Berichte_2022.xlsx /Users/ruvenbeckers/Documents/Sekretär/Berichte/verk.xlsx",
+            "args": "/Users/ruvenbeckers/Documents/berichteNeu/Berichte_2022.xlsx /Users/ruvenbeckers/Documents/berichteNeu/verk.xlsx",
             "projectName": "createVerkuendigerKarten",
             "vmArgs": "-Xmx2524m"
         }
