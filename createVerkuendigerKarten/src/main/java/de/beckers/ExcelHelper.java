@@ -74,4 +74,28 @@ public final class ExcelHelper {
         DataValidation dvVal = helper.createValidation(constraint, addressList);
         sheet.addValidationData(dvVal);
     }
+
+    /**
+     * Schiebt ab firstRow alle eine Zeile tiefer.
+     * @param sheet Das Arbeitsblatt
+     * @param firstRow die erste zu verschiebeen Zeile
+     */
+    public static void moveRowDown(XSSFSheet sheet, int firstRow){
+        // GetLastRowNum macht schonmal Probleme
+        int max;
+        XSSFRow row;
+        XSSFCell cell;
+        for(max = 100; max > 0; max--){
+            row = sheet.getRow(max);
+            if(row == null){
+                continue;
+            }
+            cell = row.getCell(0);
+            if(cell == null){
+                continue;
+            }
+            break;
+        }
+        sheet.shiftRows(firstRow, max, 1);
+    }
 }
